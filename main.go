@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
+	"path/filepath"
 )
 
 type StatusError struct {
@@ -40,19 +40,37 @@ func main() {
 	handleCmd()
 }
 
+// from https://stackoverflow.com/questions/20437336/how-to-execute-system-command-in-golang-with-unknown-arguments
+var (
+    output_path = filepath.Join("./output")
+    bash_script = filepath.Join( "_script.sh" )
+)
+func checkError( e error){
+    if e != nil {
+        panic(e)
+    }
+}
+func exe_cmd(cmds []string) {
+    os.RemoveAll(output_path)
+    err := os.MkdirAll( output_path, os.ModePerm|os.ModeDir )
+    checkError(err)
+    file, err := os.Create( filepath.Join(output_path, bash_script))
+    checkError(err)
+    defer file.Close()
+    file.WriteString("#!/bin/sh\n")
+    file.WriteString( strings.Join(cmds, " "))
+    err = os.Chdir(output_path)
+    checkError(err)
+    out, err := exec.Command("sh", bash_script).Output()
+    checkError(err)
+    fmt.Println(string(out))
+}
+
 func executeCommand(name string, args []string) {
 	if isVerbose() {
 		fmt.Printf("\n--> %s %s\n", name, strings.Join(args, " "))
 	}
-	cmd := exec.Command(name, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Run()
-	if !cmd.ProcessState.Success() {
-		status := cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
-		panic(StatusError{errors.New(cmd.ProcessState.String()), status})
-	}
+	exe_cmd(append([]string{name}, args...))
 }
 
 func commandOutput(name string, args []string) (string, error) {
