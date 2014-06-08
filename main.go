@@ -42,7 +42,6 @@ func main() {
 
 // from https://stackoverflow.com/questions/20437336/how-to-execute-system-command-in-golang-with-unknown-arguments
 var (
-    output_path = filepath.Join("./output")
     bash_script = filepath.Join( "_script.sh" )
 )
 func checkError( e error){
@@ -51,19 +50,16 @@ func checkError( e error){
     }
 }
 func exe_cmd(cmds []string) {
-    os.RemoveAll(output_path)
-    err := os.MkdirAll( output_path, os.ModePerm|os.ModeDir )
-    checkError(err)
-    file, err := os.Create( filepath.Join(output_path, bash_script))
+    os.RemoveAll(bash_script)
+    file, err := os.Create(bash_script)
     checkError(err)
     defer file.Close()
     file.WriteString("#!/bin/sh\n")
     file.WriteString( strings.Join(cmds, " "))
-    err = os.Chdir(output_path)
-    checkError(err)
     out, err := exec.Command("sh", bash_script).Output()
     checkError(err)
     fmt.Println(string(out))
+    os.RemoveAll(bash_script)
 }
 
 func executeCommand(name string, args []string) {
