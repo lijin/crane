@@ -56,7 +56,7 @@ func (containers Containers) run(recreate bool) {
 	if recreate {
 		containers.rm(true)
 	}
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.run()
 	}
 }
@@ -67,7 +67,7 @@ func (containers Containers) runOrStart(recreate bool) {
 	if recreate {
 		containers.rm(true)
 	}
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.runOrStart()
 	}
 }
@@ -75,28 +75,28 @@ func (containers Containers) runOrStart(recreate bool) {
 // Provision or skip images.
 // When update is true, provisions all images.
 func (containers Containers) provisionOrSkip(update bool, nocache bool) {
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.provisionOrSkip(update, nocache)
 	}
 }
 
 // Start containers.
 func (containers Containers) start() {
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.start()
 	}
 }
 
 // Kill containers.
 func (containers Containers) kill() {
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.kill()
 	}
 }
 
 // Stop containers.
 func (containers Containers) stop() {
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.stop()
 	}
 }
@@ -107,7 +107,7 @@ func (containers Containers) rm(kill bool) {
 	if kill {
 		containers.kill()
 	}
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.rm()
 	}
 }
