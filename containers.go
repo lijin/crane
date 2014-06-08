@@ -46,7 +46,7 @@ func (containers Containers) lift(force bool, kill bool) {
 // Provision containers.
 // When forced, this will rebuild all images.
 func (containers Containers) provision(force bool) {
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.provision(force)
 	}
 }
@@ -57,7 +57,7 @@ func (containers Containers) run(force bool, kill bool) {
 	if force {
 		containers.rm(force, kill)
 	}
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.run()
 	}
 }
@@ -68,28 +68,28 @@ func (containers Containers) runOrStart(force bool, kill bool) {
 	if force {
 		containers.rm(force, kill)
 	}
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.runOrStart()
 	}
 }
 
 // Start containers.
 func (containers Containers) start() {
-	for _, container := range containers.reversed() {
+	for _, container := range containers {
 		container.start()
 	}
 }
 
 // Kill containers.
 func (containers Containers) kill() {
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.kill()
 	}
 }
 
 // Stop containers.
 func (containers Containers) stop() {
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.stop()
 	}
 }
@@ -104,7 +104,7 @@ func (containers Containers) rm(force bool, kill bool) {
 			containers.stop()
 		}
 	}
-	for _, container := range containers {
+	for _, container := range containers.reversed() {
 		container.rm()
 	}
 }
